@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa Tauro — Booking Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root{--gold:#C9A96E;--gold-light:#E8D5A8;--gold-dark:#A0854B;--charcoal:#1A1A1A;--warm-black:#0D0B08;--cream:#FAF7F2;--cream-dark:#F0EBE1;--stone:#8C8279;--stone-light:#B5ADA5;--ocean:#1B6B7D;--white:#FFFFFF;--sand:#E8DDD0;--green:#25D366;--shadow-sm:0 2px 8px rgba(0,0,0,0.06);--shadow-md:0 8px 30px rgba(0,0,0,0.1);--shadow-lg:0 20px 60px rgba(0,0,0,0.15);--shadow-xl:0 30px 80px rgba(0,0,0,0.2);--r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:24px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        .chat-panel,.chat-panel *,.chat-fab{all:revert;box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',sans-serif}
+        .chat-panel a,.chat-panel a:hover,.chat-panel a:focus,.chat-panel a:active,.chat-panel a:visited{color:var(--ocean)!important;text-decoration:none!important;background:none!important}
+        .chat-panel button,.chat-panel button:hover,.chat-panel button:focus,.chat-panel button:active{outline:none!important;box-shadow:none!important;background:none;border:none;cursor:pointer}
+        .chat-panel input,.chat-panel select,.chat-panel textarea{outline:none!important;-webkit-appearance:none}
+        .chat-panel img{max-width:100%;height:auto}
+        body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;overflow-x:hidden;color:var(--charcoal)}
+        h1,h2,h3,h4,h5{font-family:'Playfair Display',serif;font-weight:500;letter-spacing:-0.01em}
+        .chat-fab{position:fixed;bottom:24px;right:24px;width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;z-index:9998;background:var(--warm-black);box-shadow:var(--shadow-lg),0 0 0 0 rgba(201,169,110,0.4);display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(.34,1.56,.64,1);animation:fp 3s ease-in-out infinite}
+        .chat-fab:hover{transform:scale(1.08);box-shadow:var(--shadow-xl),0 0 0 8px rgba(201,169,110,0.15)}
+        .chat-fab svg{width:28px;height:28px;fill:none;stroke:var(--gold);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s}
+        .chat-fab.is-open svg{transform:rotate(90deg)}.chat-fab.is-open{animation:none}
+        @keyframes fp{0%,100%{box-shadow:var(--shadow-lg),0 0 0 0 rgba(201,169,110,0.3)}50%{box-shadow:var(--shadow-lg),0 0 0 12px rgba(201,169,110,0)}}
+        .chat-panel{position:fixed;bottom:100px;right:24px;width:min(440px,calc(100vw - 32px));height:min(720px,calc(100vh - 130px));background:var(--cream);border-radius:var(--r-xl);box-shadow:var(--shadow-xl);display:flex;flex-direction:column;overflow:hidden;z-index:9999;opacity:0;transform:translateY(24px) scale(.96);pointer-events:none;transition:all .45s cubic-bezier(.34,1.56,.64,1);border:1px solid rgba(201,169,110,0.15)}
+        .chat-panel.is-visible{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+        .chat-head{background:var(--warm-black);flex-shrink:0;position:relative;overflow:hidden}
+        .chat-head::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+        .ht{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px}
+        .hb{display:flex;align-items:center;gap:14px}
+        .hl{height:28px;width:auto;filter:brightness(0) invert(1);opacity:.95}
+        .hd{width:1px;height:24px;background:rgba(255,255,255,0.15)}
+        .hti{display:flex;flex-direction:column;gap:2px}
+        .hti h3{font-size:14px;font-weight:500;color:var(--cream);letter-spacing:.02em}
+        .hs{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--stone-light)}
+        .sp{width:6px;height:6px;background:#4ADE80;border-radius:50%;position:relative}
+        .sp::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:rgba(74,222,128,0.3);animation:sr 2s ease-in-out infinite}
+        @keyframes sr{0%,100%{transform:scale(.8);opacity:1}50%{transform:scale(1.4);opacity:0}}
+        .hx{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.06);color:var(--stone-light);width:32px;height:32px;border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:0;border:none}
+        .hx:hover{background:rgba(255,255,255,0.15);color:var(--cream)}
+        .ls{display:flex;padding:0 18px 14px}
+        .lp{flex:1;padding:7px 0;background:0;border:1px solid rgba(201,169,110,0.25);color:var(--stone-light);font-size:11px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .25s;letter-spacing:.06em;text-transform:uppercase}
+        .lp:first-child{border-radius:6px 0 0 6px;border-right:none}.lp:last-child{border-radius:0 6px 6px 0}
+        .lp.active{background:var(--gold);border-color:var(--gold);color:var(--warm-black);font-weight:600}
+        .cb{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 16px;background:var(--cream);scroll-behavior:smooth}
+        .cb::-webkit-scrollbar{width:4px}.cb::-webkit-scrollbar-thumb{background:var(--stone-light);border-radius:4px}
+        .msg{display:flex;gap:10px;margin-bottom:16px;animation:mi .35s cubic-bezier(.34,1.56,.64,1) forwards;opacity:0;max-width:100%}
+        @keyframes mi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .msg.ib{flex-direction:row}.msg.iu{flex-direction:row-reverse}
+        .ma{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .msg.ib .ma{background:var(--warm-black)}.msg.iu .ma{background:var(--sand);color:var(--stone);font-size:12px}
+        .ma svg{width:18px;height:18px}
+        .mb{flex:1;min-width:0}
+        .mx{max-width:100%;width:fit-content;padding:12px 16px;font-size:13.5px;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word}
+        .mx a{color:var(--ocean);font-weight:600;text-decoration:none}.mx a:hover{text-decoration:underline}
+        .msg.ib .mx{background:var(--white);color:var(--charcoal);border-radius:2px 14px 14px 14px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04)}
+        .msg.iu .mx{background:var(--warm-black);color:var(--cream);border-radius:14px 2px 14px 14px;margin-left:auto}
+        .qr{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+        .qb{background:var(--white);border:1.5px solid var(--sand);color:var(--charcoal);padding:8px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;transition:all .25s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+        .qb:hover{background:var(--warm-black)!important;border-color:var(--warm-black)!important;color:var(--gold)!important;transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+        .sc{background:var(--white);border-radius:var(--r-md);overflow:hidden;margin-top:10px;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,0.04);transition:transform .3s,box-shadow .3s;cursor:pointer}
+        .sc:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+        .sci{position:relative;width:100%;height:170px;overflow:hidden;background:var(--charcoal)}
+        .sci img{width:100%;height:100%;object-fit:cover;transition:transform .5s}.sc:hover .sci img{transform:scale(1.05)}
+        .sb{position:absolute;top:12px;left:12px;background:rgba(13,11,8,0.85);color:var(--gold);padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(8px)}
+        .sn{padding:14px 16px}
+        .sn h4{font-size:16px;color:var(--charcoal);margin-bottom:6px}
+        .sm{display:flex;gap:12px;font-size:12px;color:var(--stone);margin-bottom:10px}
+        .sp2{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--gold-dark);margin-bottom:6px}
+        .sd{font-size:12px;color:var(--stone);line-height:1.5}
+        .ec{background:var(--white);border-radius:var(--r-md);overflow:hidden;margin-top:10px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04);display:flex;min-height:90px;transition:all .25s;cursor:pointer}
+        .ec:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+        .ei{width:70px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--warm-black),#2A2520)}
+        .ei svg{width:28px;height:28px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+        .ef{padding:12px 14px;flex:1;display:flex;flex-direction:column;justify-content:center}
+        .ef h4{font-size:14px;color:var(--charcoal);margin-bottom:3px}
+        .ep{font-size:13px;font-weight:600;color:var(--gold-dark);margin-bottom:4px}
+        .ed{font-size:11.5px;color:var(--stone);line-height:1.4}
+        .qf{background:var(--white);border-radius:var(--r-md);padding:20px;margin-top:10px;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,0.04)}
+        .qf h4{font-size:17px;color:var(--charcoal);margin-bottom:4px}
+        .fs{font-size:12px;color:var(--stone);margin-bottom:16px}
+        .fg{margin-bottom:14px}
+        .fg label{display:block;font-size:11px;font-weight:600;color:var(--stone);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+        .fg input,.fg select,.fg textarea{width:100%;padding:10px 14px;border:1.5px solid var(--sand);border-radius:var(--r-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--charcoal);outline:0;background:var(--cream);transition:all .2s}
+        .fg textarea{resize:vertical;min-height:60px}
+        .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(201,169,110,0.1)}
+        .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .qc{width:100%;padding:13px;background:var(--warm-black);color:var(--gold);border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.04em;text-transform:uppercase;transition:all .25s;margin-top:4px}
+        .qc:hover{background:var(--gold-dark);color:var(--white);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+        .qc.secondary{background:transparent;color:var(--charcoal);border:1.5px solid var(--sand)}.qc.secondary:hover{border-color:var(--warm-black);background:var(--cream)}
+        .qr2{background:var(--white);border-radius:var(--r-md);overflow:hidden;margin-top:12px;box-shadow:var(--shadow-md);border:1px solid rgba(201,169,110,0.2)}
+        .qr2h{background:var(--warm-black);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+        .qr2h h4{color:var(--gold);font-size:15px}
+        .st{background:rgba(201,169,110,0.15);color:var(--gold);padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+        .qr2b{padding:16px 18px}
+        .ql{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:var(--stone);border-bottom:1px solid var(--cream-dark)}
+        .ql:last-of-type{border:none;padding-top:12px;margin-top:4px;font-weight:700;font-size:16px;color:var(--charcoal);border-top:2px solid var(--warm-black)}
+        .ql span:last-child{font-weight:600;color:var(--charcoal)}
+        .ql:last-of-type span:last-child{color:var(--gold-dark);font-family:'Playfair Display',serif;font-size:18px}
+        .qn{font-size:11px;color:var(--stone-light);font-style:italic;margin-top:12px;padding-top:12px;border-top:1px solid var(--cream-dark);line-height:1.5}
+        .qa{display:flex;gap:8px;margin-top:14px}
+        .qab{flex:1;padding:11px;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;border:none;color:white}
+        .qaw{background:var(--green)}.qaw:hover{background:#1DA851}
+        .qae{background:var(--warm-black);color:var(--gold)}.qae:hover{background:var(--gold-dark);color:white}
+        .tc{background:var(--white);border-radius:var(--r-md);overflow:hidden;margin-top:10px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04)}
+        .tch{background:var(--warm-black);padding:12px 16px}.tch h4{color:var(--gold);font-size:14px}.tch span{font-size:11px;color:var(--stone-light)}
+        .tr{display:flex;justify-content:space-between;padding:9px 16px;font-size:12.5px;border-bottom:1px solid var(--cream-dark);cursor:pointer;transition:background .15s}
+        .tr:hover{background:var(--cream)}.tr:last-child{border:none}
+        .tr span:first-child{color:var(--stone)}.tr span:last-child{font-weight:600;color:var(--charcoal)}
+        .tn{padding:10px 16px;font-size:11px;color:var(--stone-light);background:var(--cream)}
+        .wc{background:var(--white);border-radius:var(--r-md);overflow:hidden;margin-top:10px;box-shadow:var(--shadow-md);border:1px solid rgba(201,169,110,0.15)}
+        .wch{height:130px;background:linear-gradient(135deg,var(--warm-black),#2A2520);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+        .wch::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(201,169,110,0.12),transparent 70%)}
+        .wch h4{color:var(--gold);font-size:20px;font-style:italic;position:relative}
+        .wcb{padding:16px}
+        .wf{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--charcoal);border-bottom:1px solid var(--cream-dark)}
+        .wf:last-child{border:none}
+        .wi{width:32px;height:32px;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .wi svg{width:16px;height:16px;stroke:var(--gold-dark);fill:none;stroke-width:1.8}
+        .typing-ind{display:flex;gap:4px;padding:14px 18px;background:var(--white);border-radius:2px 14px 14px 14px;width:fit-content;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04)}
+        .td{width:6px;height:6px;background:var(--stone-light);border-radius:50%;animation:tb 1.4s infinite}
+        .td:nth-child(2){animation-delay:.15s}.td:nth-child(3){animation-delay:.3s}
+        @keyframes tb{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+        .cf{padding:12px 16px 14px;background:var(--white);border-top:1px solid var(--cream-dark);flex-shrink:0}
+        .ir{display:flex;gap:8px;align-items:center}
+        .ci{flex:1;padding:11px 16px;border:1.5px solid var(--sand);border-radius:24px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--charcoal);outline:0;background:var(--cream);transition:all .2s;min-width:0}
+        .ci:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(201,169,110,0.08)}
+        .ci::placeholder{color:var(--stone-light)}
+        .se{width:42px;height:42px;border-radius:50%;background:var(--warm-black);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s}
+        .se:hover{background:var(--gold-dark);transform:scale(1.06)}
+        .se svg{width:18px;height:18px;fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .se:hover svg{stroke:var(--white)}
+        .cc{text-align:center;margin-top:8px;font-size:10px;color:var(--stone-light);letter-spacing:.04em}
+        /* Cart badge */
+        .cart-badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:var(--warm-black);font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+        @media(max-width:768px){.chat-panel{width:calc(100vw - 16px);height:calc(100dvh - 100px);max-height:600px;right:8px;bottom:76px;border-radius:var(--r-lg)}.chat-fab{right:16px;bottom:16px;width:56px;height:56px}.sci{height:140px}}
+        @media(max-width:430px){.chat-panel{width:calc(100vw - 12px);height:calc(100dvh - 90px);max-height:580px;right:6px;bottom:72px;border-radius:var(--r-md)}.chat-fab{right:12px;bottom:12px;width:52px;height:52px}.mx{font-size:12.5px;padding:10px 13px}.qb{font-size:11px;padding:7px 12px}.sci{height:130px}}
+    </style>
+</head>
+<body>
+<button class="chat-fab" id="chatFab"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
+<div class="chat-panel" id="chatPanel">
+    <div class="chat-head">
+        <div class="ht"><div class="hb"><img src="https://casatauro.com.mx/storage/2021/03/LOGO-SOLO1-1024x434.png" alt="Casa Tauro" class="hl"><div class="hd"></div><div class="hti"><h3>Booking Assistant</h3><div class="hs"><span class="sp"></span><span id="stx">Available 24/7</span></div></div></div><button class="hx" id="closeBtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg></button></div>
+        <div class="ls"><button class="lp" data-lang="es">Español</button><button class="lp active" data-lang="en">English</button></div>
+    </div>
+    <div class="cb" id="chatBody"></div>
+    <div class="cf"><div class="ir"><input type="text" class="ci" id="chatInput" placeholder="Ask me about Casa Tauro..." autocomplete="off"><button class="se" id="sendBtn"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div><div class="cc">Casa Tauro · <a href="https://casatauro.com" target="_blank" style="color:var(--stone-light);text-decoration:none">casatauro.com</a></div></div>
+</div>
+<script>
+const C={KEY:'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',WA:'+524498905064',WA2:'+523121206496',EMAIL:'flencastre@gmail.com',ADMIN:'flencastre@gmail.com',WEB:'https://casatauro.com',APPS_SCRIPT:'https://script.google.com/macros/s/AKfycby2ZIXDsmWE1S7TV7OyHrFzk7u4aufmY_BSfKnUWFSLhLSInQJZovowAji8L6-6tkynPg/exec'};
+const B=`<svg viewBox="0 0 40 40" width="18" height="18" fill="none"><path d="M8 14c-2-3-3-7-2-9 2 1 4 3 5 6M32 14c2-3 3-7 2-9-2 1-4 3-5 6M13 18c0 0-1 8 7 12 8-4 7-12 7-12M12 18c-1-2 0-5 3-7 2-1 3-1 5-1s3 0 5 1c3 2 4 5 3 7" stroke="#C9A96E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="20" r="1" fill="#C9A96E"/><circle cx="24" cy="20" r="1" fill="#C9A96E"/></svg>`;
+const ICONS={anchor:'<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="21"/><path d="M5 19H2a10 10 0 0 0 20 0h-3"/></svg>',utensils:'<svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" y1="2" x2="7" y2="22"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>',flame:'<svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',moon:'<svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',truck:'<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'};
+const SUITES={en:[{name:'Full Property',badge:'Best Value',cap:'12 guests',rooms:'6 suites',price:'From $52,000 MXN/night',desc:'Casa Tauro + Casita Palmar. 2 infinity pools, private beach.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-1-scaled.webp'},{name:'Casa Tauro',badge:'Most Popular',cap:'8 guests',rooms:'4 suites',price:'From $34,650 MXN/night',desc:'Tauro, Venado, Jabalí & Conejo suites. Main pool & common areas.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-45-2048x1256.webp'},{name:'Casita Palmar',badge:'Intimate',cap:'6 guests',rooms:'2 suites',price:'From $17,350 MXN/night',desc:'Puma & Tortuga suites. Private pool, kitchen, garden.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-17-1024x684.webp'},{name:'Suite Tauro',badge:'Premium',cap:'2 guests',rooms:'Master',price:'Ask for rates',desc:'Largest suite, 2nd floor, panoramic ocean views.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-45-2048x1256.webp'},{name:'Suite Puma',badge:'Family',cap:'4 guests',rooms:'Suite+Living',price:'$9,900 MXN/night',desc:'King bed, living room, 2 baths, kitchen, private pool.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-17-1024x684.webp'},{name:'Suite Tortuga',badge:'Beachfront',cap:'2 guests',rooms:'1 Suite',price:'$6,600 MXN/night',desc:'Beach level, direct sand access, double rain shower.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-24-1024x686.webp'}],es:[{name:'Propiedad Completa',badge:'Mejor Valor',cap:'12 huéspedes',rooms:'6 suites',price:'Desde $52,000 MXN/noche',desc:'Casa Tauro + Casita Palmar. 2 albercas infinity, playa privada.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-1-scaled.webp'},{name:'Casa Tauro',badge:'Más Popular',cap:'8 huéspedes',rooms:'4 suites',price:'Desde $34,650 MXN/noche',desc:'Suites Tauro, Venado, Jabalí y Conejo. Alberca principal.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-45-2048x1256.webp'},{name:'Casita Palmar',badge:'Íntima',cap:'6 huéspedes',rooms:'2 suites',price:'Desde $17,350 MXN/noche',desc:'Suites Puma y Tortuga. Alberca privada, cocina, jardín.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-17-1024x684.webp'},{name:'Suite Tauro',badge:'Premium',cap:'2 huéspedes',rooms:'Master',price:'Consultar',desc:'La suite más grande, 2do piso, vistas panorámicas.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-45-2048x1256.webp'},{name:'Suite Puma',badge:'Familiar',cap:'4 huéspedes',rooms:'Suite+Sala',price:'$9,900 MXN/noche',desc:'Cama king, sala, 2 baños, cocina, alberca privada.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-17-1024x684.webp'},{name:'Suite Tortuga',badge:'Frente al Mar',cap:'2 huéspedes',rooms:'1 Suite',price:'$6,600 MXN/noche',desc:'Nivel playa, acceso directo a la arena, regadera doble.',img:'https://casatauro.com.mx/storage/2022/10/ezgif.com-gif-maker-24-1024x686.webp'}]};
+const EXPS={en:[{id:'boat',icon:'anchor',name:'Boat "Tauro"',price:'$3,000 MXN/hr',desc:'Up to 10 guests · Min 2h · Water, drinks & beer included'},{id:'picnic',icon:'utensils',name:'Beach Picnic',price:'From $1,600 MXN/person',desc:'4–24 guests · 6 menus · Standard or Premium package'},{id:'bbq',icon:'flame',name:'Beach Barbecue',price:'From $2,150 MXN/person',desc:'Min 6 guests · Full grill menu · Standard or Premium'},{id:'dinner',icon:'moon',name:'Beach Dinner',price:'From $2,800 MXN/person',desc:'Min 10 guests · Candlelit · Live music · Full menu'}],es:[{id:'boat',icon:'anchor',name:'Bote "Tauro"',price:'$3,000 MXN/hr',desc:'Hasta 10 personas · Mín 2h · Agua, refrescos y cerveza'},{id:'picnic',icon:'utensils',name:'Picnic en la Playa',price:'Desde $1,600 MXN/persona',desc:'4–24 personas · 6 menús · Paquete Estándar o Premium'},{id:'bbq',icon:'flame',name:'Asado en la Playa',price:'Desde $2,150 MXN/persona',desc:'Mín 6 personas · Menú completo a la parrilla'},{id:'dinner',icon:'moon',name:'Cena en la Playa',price:'Desde $2,800 MXN/persona',desc:'Mín 10 personas · Velas · Música en vivo · Menú completo'}]};
+const TRANSPORT={suburban:[{to:'Manzanillo (ZLO)',p:3500},{to:'Pto. Vallarta (PVR)',p:5500},{to:'Guadalajara',p:9000},{to:'Colima',p:5500},{to:'Local area (one way)',p:1500},{to:'Pista Chamela',p:2000},{to:'Tamarindo (RT)',p:5000},{to:'Perula (RT)',p:4000}],sedan:[{to:'Manzanillo (ZLO)',p:2500},{to:'Pto. Vallarta (PVR)',p:4000},{to:'Guadalajara',p:7000},{to:'Colima',p:4000},{to:'Local area (one way)',p:1000},{to:'Pista Chamela',p:1100},{to:'Punta de Mita',p:5000},{to:'Perula (RT)',p:4000}]};
+
+const KB=`CASA TAURO — Luxury Boutique Hotel, Jalisco Coast, Mexico. Website: casatauro.com
+6 suites (12 max), 2 infinity pools, private beach. Contemporary Mexican architecture.
+Casa Tauro (4 suites/8 guests): Tauro(King,2ndFloor,panoramic), Venado(King,2ndFloor,terrace), Jabali(King,ground,Sky TV), Conejo(King,garden,beach access)
+Casita Palmar (2 suites/6 guests): Puma(King+living,4pax,pool,kitchen,2bath), Tortuga(King,beach level,direct access,rain shower)
+Pricing/night MXN: Full=$52,000(low)/$82,500(high), CasaTauro=$34,650(low), CasitaPalmar=$17,350(low), Puma=$9,900, Tortuga=$6,600
+Seasons: High=Dec15-Jan10 + Easter/Holy Week. Low=rest.
+Meals: Adults $2,500/day, Kids<12 $1,250/day (B+L+D)
+Boat "Tauro": $3,000/hr min2h, up to 10pax, includes water/drinks/beer, 8am-sunset
+Picnic: 4-24 guests, Standard $1,600/Premium $2,400 per person, 6 menu options, 13:00-19:00
+BBQ: min 6 pax, Standard $2,150/Premium $2,950 per person, full grill menu
+Dinner: min 10 pax, Standard $2,800/Premium $3,600 per person, candlelit, live music
+All food experiences: +15% service, +3.6% CC/PayPal, boat transport separate $3,000/hr
+Transport (Transportes Guicho): Suburban 4+pax / Sedan 1-3pax. WiFi, water, baby seat.
+Weddings: Beach $360K(<=100)/$480K(<=350), property $82,500/night min 3 nights, 2 beaches, up to 400 guests
+Location: Jalisco coast, 90min Manzanillo, 2.5h PVR, 6h GDL
+Contact: +52 449 890 5064, info@casatauro.com.mx
+Policies: Check-in 3PM, Check-out 12PM, 50% deposit, full payment 7 days before, cancel 30d(low)/60d(high)
+IMPORTANT: Never mention "Careyes" or "Costa Careyes" in responses. Refer to location as "the Jalisco coast" or "the Pacific coast of Mexico".`;
+
+// ===================== STATE =====================
+let S={lang:'en',hist:[],open:false,init:false,cart:{stay:null,experiences:[],transport:null,email:'',name:''}};
+const $=id=>document.getElementById(id);
+const fmt=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0}).format(n);
+const L=()=>S.lang==='es';
+const TX={es:{st:'Disponible 24/7',ph:'Pregúntame sobre Casa Tauro...',hi:'¡Bienvenido a <strong>Casa Tauro</strong>!\n\nSoy tu asistente de reservaciones. Te guío paso a paso para diseñar tu experiencia perfecta en la costa del Pacífico mexicano.\n\n¿Por dónde empezamos?',opts:['Ver Suites','Bodas','Contacto']},en:{st:'Available 24/7',ph:'Ask me about Casa Tauro...',hi:'Welcome to <strong>Casa Tauro</strong>!\n\nI\'m your booking assistant. I\'ll guide you step by step to design your perfect experience on the Mexican Pacific coast.\n\nWhere shall we start?',opts:['View Suites','Weddings','Contact']}};
+const tx=k=>TX[S.lang][k];
+
+// ===================== DOM =====================
+const fab=$('chatFab'),panel=$('chatPanel'),body=$('chatBody'),inp=$('chatInput'),sbtn=$('sendBtn');
+fab.onclick=()=>tog();$('closeBtn').onclick=()=>tog(false);sbtn.onclick=()=>send();
+inp.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
+document.querySelectorAll('.lp').forEach(b=>{b.onclick=()=>{const l=b.dataset.lang;if(l===S.lang)return;S.lang=l;document.querySelectorAll('.lp').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('stx').textContent=tx('st');inp.placeholder=tx('ph');body.innerHTML='';S.hist=[];S.init=false;S.cart={stay:null,experiences:[],transport:null,email:'',name:''};initChat();}});
+
+function tog(f){const o=f!==undefined?f:!S.open;S.open=o;panel.classList.toggle('is-visible',o);fab.classList.toggle('is-open',o);if(o&&!S.init)setTimeout(initChat,350);if(o)setTimeout(()=>inp.focus(),400);}
+
+// ===================== UI HELPERS =====================
+function addMsg(h,bot,o={}){const m=document.createElement('div');m.className=`msg ${bot?'ib':'iu'}`;const a=document.createElement('div');a.className='ma';a.innerHTML=bot?B:'●';const mb=document.createElement('div');mb.className='mb';const mx=document.createElement('div');mx.className='mx';mx.innerHTML=h.replace(/\n/g,'<br>');mb.appendChild(mx);if(o.qr?.length){const w=document.createElement('div');w.className='qr';o.qr.forEach(r=>{const b=document.createElement('button');b.className='qb';b.textContent=r;b.onclick=()=>handleQR(r);w.appendChild(b);});mb.appendChild(w);}m.appendChild(a);m.appendChild(mb);body.appendChild(m);body.scrollTop=body.scrollHeight;}
+function addCard(h){const m=document.createElement('div');m.className='msg ib';m.innerHTML=`<div class="ma">${B}</div><div class="mb">${h}</div>`;body.appendChild(m);body.scrollTop=body.scrollHeight;}
+function showTyping(){const e=document.createElement('div');e.className='msg ib';e.id='typ';e.innerHTML=`<div class="ma">${B}</div><div class="mb"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;body.appendChild(e);body.scrollTop=body.scrollHeight;}
+function hideTyping(){$('typ')?.remove();}
+function clearQR(){body.querySelectorAll('.qr').forEach(e=>e.remove());}
+function initChat(){if(S.init)return;S.init=true;addMsg(tx('hi'),true,{qr:tx('opts')});}
+function send(){const t=inp.value.trim();if(!t)return;addMsg(t,false);inp.value='';clearQR();processMsg(t);}
+
+function handleQR(t){addMsg(t,false);clearQR();const lo=t.toLowerCase();
+    // Funnel QR routing — SPECIFIC matches first, then generic
+    if(lo.includes('ver suite')||lo.includes('view suite'))return showSuites();
+    if(lo==='cotizar'||lo==='get a quote'||lo.includes('quote me')||lo==='cotizar estadía')return showStayForm();
+    if(lo.includes('agregar experiencia')||lo.includes('add experience')||lo.includes('agregar otra')||lo.includes('add another')||lo==='experiencias'||lo==='experiences')return showExperiences();
+    if(lo.includes('bote')||lo.includes('boat'))return showExpDetail('boat');
+    if(lo.includes('picnic'))return showExpDetail('picnic');
+    if(lo.includes('asado')||lo.includes('barbecue')||lo.includes('bbq'))return showExpDetail('bbq');
+    if(lo.includes('cena')||lo.includes('dinner'))return showExpDetail('dinner');
+    if(lo.includes('transporte')||lo.includes('transport')||lo.includes('traslado')||lo.includes('transfer')||lo.includes('ir a transporte')||lo.includes('go to transport'))return showTransportFlow();
+    // Wedding quote BEFORE generic wedding
+    if(lo.includes('cotizar boda')||lo.includes('wedding quote'))return showWeddingForm();
+    if(lo==='bodas'||lo==='weddings')return showWeddings();
+    if(lo.includes('contacto')||lo.includes('contact')||lo.includes('whatsapp'))return showContact();
+    if(lo.includes('ver resumen')||lo.includes('view summary')||lo.includes('finalizar')||lo.includes('finalize'))return showFullSummary();
+    if(lo.includes('skip')||lo.includes('no, gracias')||lo.includes('no thanks')||lo.includes('saltar'))return showFullSummary();
+    if(lo.includes('nueva cotización')||lo.includes('new quote')||lo.includes('start over')){S.cart={stay:null,experiences:[],transport:null,email:'',name:''};return showSuites();}
+    processMsg(t);
+}
+
+// ===================== MESSAGE ROUTER =====================
+async function processMsg(msg){const lo=msg.toLowerCase();
+    if(lo.includes('suite')&&(lo.includes('ver')||lo.includes('view')||lo.includes('show')||lo.includes('habitaci')))return showSuites();
+    if((lo.includes('cotiz')||lo.includes('quote')||lo.includes('precio'))&&!lo.includes('boda')&&!lo.includes('wedding'))return showStayForm();
+    if(lo.includes('experiencia')||lo.includes('experience')||lo.includes('picnic')||lo.includes('asado')||lo.includes('barbecue')||lo.includes('bote')||lo.includes('boat')||lo.includes('cena en la playa')||lo.includes('beach dinner'))return showExperiences();
+    if(lo.includes('boda')||lo.includes('wedding'))return showWeddings();
+    if(lo.includes('transporte')||lo.includes('transport')||lo.includes('traslado')||lo.includes('transfer')||lo.includes('aeropuerto')||lo.includes('airport')||lo.includes('llegar')||lo.includes('how to get')||lo.includes('ubicaci')||lo.includes('location'))return showTransportFlow();
+    if(lo.includes('whatsapp')||lo.includes('contacto')||lo.includes('contact'))return showContact();
+
+    // Smart conversation detection — guide users to the right flow
+    if(lo.includes('reserv')||lo.includes('book')||lo.includes('quiero ir')||lo.includes('want to stay')||lo.includes('disponib')||lo.includes('availab')){
+        addMsg(L()?'Con gusto te ayudo a reservar. Primero veamos nuestras opciones de alojamiento y después te preparo una cotización.':'I\'d love to help you book. Let\'s first look at our accommodation options and then I\'ll prepare a quote for you.',true,{qr:L()?['Ver Suites','Cotizar estadía']:['View Suites','Get a Quote']});return;
+    }
+    if(lo.includes('tortuga')){
+        addMsg(L()?'La Suite Tortuga es espectacular — está al nivel de la playa con acceso directo a la arena. Precio: $6,600 MXN/noche. ¿Te gustaría cotizar tu estadía?':'Suite Tortuga is spectacular — beach level with direct sand access. Price: $6,600 MXN/night. Would you like to get a quote for your stay?',true,{qr:L()?['Sí, cotizar','Ver todas las suites']:['Yes, quote me','View all suites']});return;
+    }
+    if(lo.includes('puma')){
+        addMsg(L()?'La Suite Puma es perfecta para familias — cama king, sala, cocina, 2 baños y alberca privada. Precio: $9,900 MXN/noche. ¿Cotizamos tu estadía?':'Suite Puma is perfect for families — king bed, living room, kitchen, 2 baths, and private pool. Price: $9,900 MXN/night. Shall we quote your stay?',true,{qr:L()?['Sí, cotizar','Ver todas las suites']:['Yes, quote me','View all suites']});return;
+    }
+    if(lo.includes('tauro')&&(lo.includes('suite')||lo.includes('habitaci')||lo.includes('room'))){
+        addMsg(L()?'La Suite Tauro es la más grande de la casa — segundo piso con vistas panorámicas al océano y terraza privada. ¿Te gustaría cotizar?':'The Tauro Suite is the largest in the house — second floor with panoramic ocean views and private terrace. Would you like a quote?',true,{qr:L()?['Sí, cotizar','Ver todas las suites']:['Yes, quote me','View all suites']});return;
+    }
+    if(lo.includes('hola')||lo.includes('hello')||lo.includes('hi ')||lo==='hi'||lo.includes('buenos')||lo.includes('good')||lo.includes('hey')){
+        addMsg(L()?'¡Hola! Bienvenido a Casa Tauro. ¿En qué puedo ayudarte hoy?':'Hello! Welcome to Casa Tauro. How can I help you today?',true,{qr:tx('opts')});return;
+    }
+    if(lo.includes('gracias')||lo.includes('thank')){
+        addMsg(L()?'¡Con mucho gusto! ¿Hay algo más en lo que pueda ayudarte?':'My pleasure! Is there anything else I can help you with?',true,{qr:tx('opts')});return;
+    }
+    if(lo.includes('check in')||lo.includes('check out')||lo.includes('hora')||lo.includes('time')){
+        addMsg(L()?'Check-in: 3:00 PM · Check-out: 12:00 PM. ¿Te gustaría ver nuestras suites o cotizar una estadía?':'Check-in: 3:00 PM · Check-out: 12:00 PM. Would you like to view our suites or get a quote?',true,{qr:tx('opts')});return;
+    }
+    if(lo.includes('meal')||lo.includes('comida')||lo.includes('aliment')||lo.includes('food')||lo.includes('desayun')||lo.includes('breakfast')){
+        addMsg(L()?'Ofrecemos un plan de alimentos opcional: $2,500 MXN/adulto/día y $1,250 MXN/niños menores de 12. Incluye desayuno, comida y cena. Se puede agregar al cotizar tu estadía.':'We offer an optional meal plan: $2,500 MXN/adult/day and $1,250 MXN/children under 12. Includes breakfast, lunch, and dinner. You can add it when quoting your stay.',true,{qr:L()?['Cotizar estadía','Ver suites']:['Get a Quote','View Suites']});return;
+    }
+    if(lo.includes('cancel')){
+        addMsg(L()?'Política de cancelación: Temporada baja — 30 días antes 100% reembolso, 29-10 días 50%, menos de 10 días no reembolsable. Temporada alta — 60 días antes 100%, 59-30 días 50%, menos de 30 días no reembolsable.':'Cancellation policy: Low season — 30 days before 100% refund, 29-10 days 50%, less than 10 days non-refundable. High season — 60 days before 100%, 59-30 days 50%, less than 30 days non-refundable.',true,{qr:tx('opts')});return;
+    }
+    if(lo.includes('pet')||lo.includes('mascota')||lo.includes('perro')||lo.includes('dog')){
+        addMsg(L()?'Por el momento no aceptamos mascotas en la propiedad. ¿Puedo ayudarte con algo más?':'At this time we do not accept pets on the property. Can I help you with anything else?',true,{qr:tx('opts')});return;
+    }
+    if(lo.includes('wifi')||lo.includes('internet')){
+        addMsg(L()?'Sí, todas las suites cuentan con WiFi de alta velocidad incluido, además de bocina Bose, minibar, Nespresso, y más.':'Yes, all suites include high-speed WiFi, plus Bose speaker, minibar, Nespresso, and more.',true,{qr:tx('opts')});return;
+    }
+
+    // AI fallback — only if no pattern matched
+    showTyping();
+    try{const r=await callAPI(msg);hideTyping();addMsg(r,true,{qr:tx('opts')});}catch(e){hideTyping();
+        // Friendly fallback instead of error
+        addMsg(L()?'Puedo ayudarte mejor con los botones de abajo. ¿Qué te gustaría hacer?':'I can help you best with the options below. What would you like to do?',true,{qr:tx('opts')});
+    }
+}
+
+async function callAPI(u){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':C.KEY,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:`You are the booking assistant for Casa Tauro (casatauro.com), an exclusive luxury hotel on the Pacific coast of Jalisco, Mexico. Speak ${L()?'Spanish':'English'}. Be concise (2-3 sentences), warm, sophisticated. No emojis. NEVER mention "Careyes" or "Costa Careyes" — always say "the Jalisco coast" or "the Pacific coast". When guests ask about booking or reservations, guide them to use the quote button. Knowledge:\n${KB}`,messages:[...S.hist,{role:'user',content:u}]})});const d=await r.json();if(d.content?.[0]){const t=d.content[0].text;S.hist.push({role:'user',content:u},{role:'assistant',content:t});if(S.hist.length>16)S.hist=S.hist.slice(-16);return t;}throw new Error('API error');}
+
+// ===================== 1. SHOW SUITES =====================
+function showSuites(){
+    addMsg(L()?'Conoce nuestras propiedades y suites:':'Discover our properties and suites:',true);
+    SUITES[S.lang].forEach((s,i)=>{setTimeout(()=>{const fb=`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect fill='%231A1A1A' width='400' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23C9A96E' font-family='serif' font-size='18'%3E${encodeURIComponent(s.name)}%3C/text%3E%3C/svg%3E`;addCard(`<div class="sc"><div class="sci"><img src="${s.img}" alt="${s.name}" onerror="this.src='${fb}'" loading="lazy"><span class="sb">${s.badge}</span></div><div class="sn"><h4>${s.name}</h4><div class="sm"><span>${s.cap}</span><span>${s.rooms}</span></div><div class="sp2">${s.price}</div><div class="sd">${s.desc}</div></div></div>`);},i*220);});
+    setTimeout(()=>{addMsg(L()?'¿Listo para cotizar tu estadía?':'Ready to get a quote for your stay?',true,{qr:L()?['Sí, cotizar','Bodas','Contacto']:['Yes, quote me','Weddings','Contact']});},SUITES[S.lang].length*220+400);
+}
+
+// ===================== 2. STAY QUOTE FORM =====================
+function showStayForm(){
+    const l=L();
+    addCard(`<div class="qf"><h4>${l?'Cotiza tu Estadía':'Quote Your Stay'}</h4><div class="fs">${l?'Paso 1 de 3 — Alojamiento':'Step 1 of 3 — Accommodation'}</div>
+        <div class="fr"><div class="fg"><label>${l?'Llegada':'Check-in'}</label><input type="date" id="sCI"></div><div class="fg"><label>${l?'Noches':'Nights'}</label><input type="number" id="sN" min="1" value="3"></div></div>
+        <div class="fr"><div class="fg"><label>${l?'Huéspedes':'Guests'}</label><input type="number" id="sG" min="1" max="12" value="2"></div><div class="fg"><label>${l?'Propiedad':'Property'}</label><select id="sP"><option value="full">${l?'Completa (12)':'Full (12)'}</option><option value="casa">Casa Tauro (8)</option><option value="casita">Casita Palmar (6)</option></select></div></div>
+        <div class="fg"><label>${l?'Plan de Alimentos':'Meal Plan'}</label><select id="sM"><option value="0">${l?'Sin plan':'No meal plan'}</option><option value="1">${l?'Sí — $2,500 MXN/adulto/día':'Yes — $2,500 MXN/adult/day'}</option></select></div>
+        <div style="font-size:11px;color:var(--stone-light);margin-bottom:12px;line-height:1.5;padding:10px;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold)">${l?'Para habitaciones individuales (Suite Puma $9,900/noche, Suite Tortuga $6,600/noche), contáctanos por WhatsApp para consultar disponibilidad.':'For individual rooms (Suite Puma $9,900/night, Suite Tortuga $6,600/night), contact us via WhatsApp to check availability.'}</div>
+        <button class="qc" onclick="saveStay()">${l?'Siguiente: Experiencias →':'Next: Experiences →'}</button></div>`);
+}
+
+window.saveStay=function(){
+    const ci=$('sCI').value,n=+$('sN').value,g=+$('sG').value,p=$('sP').value,m=+$('sM').value;
+    if(!ci||!n||!g){alert(L()?'Completa todos los campos':'Fill all fields');return;}
+    const d=new Date(ci),mo=d.getMonth()+1,da=d.getDate();
+    const hi=(mo===12&&da>=15)||(mo===1&&da<=10)||(mo===3&&da>=20)||(mo===4&&da<=20);
+    const pr={full:hi?82500:52000,casa:hi?52000:34650,casita:hi?27000:17350};
+    // High season rule: full property only, min 7 nights
+    if(hi&&p==='full'&&n<7){alert(L()?'En temporada alta, la propiedad completa requiere mínimo 7 noches.':'In high season, the full property requires a minimum of 7 nights.');return;}
+    const room=pr[p]*n,meal=m?g*2500*n:0;
+    const names={full:L()?'Propiedad Completa':'Full Property',casa:'Casa Tauro',casita:'Casita Palmar'};
+    S.cart.stay={checkin:ci,nights:n,guests:g,property:p,propName:names[p],meals:m,roomTotal:room,mealTotal:meal,high:hi};
+    addMsg(`${L()?'Alojamiento guardado':'Accommodation saved'}: <strong>${names[p]}</strong>, ${n} ${L()?'noches':'nights'}, ${g} ${L()?'huéspedes':'guests'}. ${L()?'Subtotal':'Subtotal'}: ${fmt(room+meal)}`,true,{qr:L()?['Agregar experiencias','Saltar a transporte','Ver resumen']:['Add experiences','Skip to transport','View summary']});
+};
+
+// ===================== 3. EXPERIENCES =====================
+function showExperiences(){
+    addMsg(L()?'Nuestras experiencias exclusivas en la playa:':'Our exclusive beach experiences:',true);
+    EXPS[S.lang].forEach((e,i)=>{setTimeout(()=>{addCard(`<div class="ec" onclick="showExpDetail('${e.id}')"><div class="ei">${ICONS[e.icon]}</div><div class="ef"><h4>${e.name}</h4><div class="ep">${e.price}</div><div class="ed">${e.desc}</div></div></div>`);},i*180);});
+    setTimeout(()=>{addMsg(L()?'Toca una experiencia para ver detalles y agregarla a tu cotización.':'Tap an experience to see details and add it to your quote.',true,{qr:L()?['Saltar a transporte','Ver resumen']:['Skip to transport','View summary']});},EXPS[S.lang].length*180+400);
+}
+
+function showExpDetail(id){
+    const l=L();const data={
+        boat:{en:{t:'Boat "Tauro"',d:'Explore the Careyes coast aboard our private boat. Turquoise waters, hidden beaches, and spectacular rock formations await.',p:'$3,000 MXN/hr (min 2h)',inc:'Water, soft drinks, beer, sunblock, attentive crew',h:'8:00am to sunset, every day',mx:'Up to 10 guests'},es:{t:'Bote "Tauro"',d:'Explora la costa de Careyes a bordo de nuestro bote privado. Aguas turquesas, playas escondidas y formaciones rocosas espectaculares.',p:'$3,000 MXN/hr (mín 2h)',inc:'Agua, refrescos, cerveza, bloqueador, tripulación',h:'8:00am a atardecer, todos los días',mx:'Hasta 10 personas'}},
+        picnic:{en:{t:'Beach Picnic',d:'A delicious picnic on your private beach. 6 gourmet menu options including vegan. Arrive by boat or land.',p:'Standard: $1,600 · Premium: $2,400 /person',inc:'Full menu, water, wine, beer, tequila. Premium adds: mezcal, gin, vodka, rum, whisky',h:'Arrive 1:00pm, depart by 7:00pm',mx:'4–24 guests'},es:{t:'Picnic en la Playa',d:'Un delicioso picnic en tu playa privada. 6 opciones de menú gourmet incluyendo vegano. Llegada por bote o tierra.',p:'Estándar: $1,600 · Premium: $2,400 /persona',inc:'Menú completo, agua, vino, cerveza, tequila. Premium agrega: mezcal, gin, vodka, ron, whisky',h:'Llegada 1:00pm, salida máx 7:00pm',mx:'4–24 personas'}},
+        bbq:{en:{t:'Beach Barbecue',d:'An authentic beachside barbecue with arrachera, shrimp skewers, Argentine chorizo, chistorra, and all the trimmings. Beautiful table setting with background music.',p:'Standard: $2,150 · Premium: $2,950 /person',inc:'Full grill menu, water, wine, beer, tequila. Premium adds full bar.',h:'Evening experience',mx:'Min 6 guests'},es:{t:'Asado en la Playa',d:'Un auténtico asado a la orilla del mar con arrachera, brochetas de camarón, chorizo argentino, chistorra y todos los complementos. Mesa hermosa con música.',p:'Estándar: $2,150 · Premium: $2,950 /persona',inc:'Menú parrilla completo, agua, vino, cerveza, tequila. Premium agrega bar completo.',h:'Experiencia nocturna',mx:'Mín 6 personas'}},
+        dinner:{en:{t:'Beach Dinner',d:'An elegant candlelit dinner on the sand with live music, exquisite tableware, and a spectacular multi-course menu. The most magical evening in Careyes.',p:'Standard: $2,800 · Premium: $3,600 /person',inc:'Full dinner, water, wine, beer, tequila. Premium adds full premium bar. Optional: mariachi, DJ, fire show.',h:'Sunset to late evening',mx:'Min 10 guests'},es:{t:'Cena en la Playa',d:'Una elegante cena con velas en la arena, música en vivo, vajilla exquisita y un espectacular menú. La noche más mágica en Careyes.',p:'Estándar: $2,800 · Premium: $3,600 /persona',inc:'Cena completa, agua, vino, cerveza, tequila. Premium agrega bar premium. Opcional: mariachi, DJ, show de fuego.',h:'Atardecer a noche',mx:'Mín 10 personas'}}
+    };
+    const e=data[id][S.lang];
+    addCard(`<div class="qf"><h4>${e.t}</h4><div class="fs">${e.d}</div>
+        <div style="font-size:13px;margin-bottom:12px"><strong>${l?'Precio':'Price'}:</strong> ${e.p}<br><strong>${l?'Incluye':'Includes'}:</strong> ${e.inc}<br><strong>${l?'Horario':'Schedule'}:</strong> ${e.h}<br><strong>${l?'Capacidad':'Capacity'}:</strong> ${e.mx}</div>
+        <div class="fs" style="margin-bottom:8px;font-size:11px;color:var(--stone-light)">+15% ${l?'cargo por servicio':'service charge'} · +3.6% CC/PayPal</div>
+        <div class="fr"><div class="fg"><label>${l?'Personas':'Guests'}</label><input type="number" id="exp_g" min="1" value="${S.cart.stay?.guests||4}"></div><div class="fg"><label>${l?'Paquete':'Package'}</label><select id="exp_p"><option value="std">Standard</option><option value="prm">Premium</option></select></div></div>
+        ${id==='boat'?`<div class="fg"><label>${l?'Horas':'Hours'}</label><input type="number" id="exp_h" min="2" value="2"></div>`:''}
+        <button class="qc" onclick="addExp('${id}')">${l?'Agregar a Cotización':'Add to Quote'}</button>
+        <button class="qc secondary" onclick="handleQR('${l?'Saltar a transporte':'Skip to transport'}')" style="margin-top:6px">${l?'Saltar':'Skip'}</button></div>`);
+}
+
+window.addExp=function(id){
+    const g=+$('exp_g')?.value||4,pk=$('exp_p')?.value||'std';
+    const prices={boat:{std:3000,prm:3000},picnic:{std:1600,prm:2400},bbq:{std:2150,prm:2950},dinner:{std:2800,prm:3600}};
+    let total;
+    if(id==='boat'){const h=+$('exp_h')?.value||2;total=prices.boat.std*h;S.cart.experiences.push({id,name:L()?'Bote "Tauro"':'Boat "Tauro"',guests:g,hours:h,pkg:pk,total});}
+    else{total=prices[id][pk]*g;const names={picnic:L()?'Picnic':'Picnic',bbq:L()?'Asado':'BBQ',dinner:L()?'Cena en la Playa':'Beach Dinner'};S.cart.experiences.push({id,name:names[id],guests:g,pkg:pk,total});}
+    addMsg(`${L()?'Agregado':'Added'}: <strong>${S.cart.experiences[S.cart.experiences.length-1].name}</strong> — ${fmt(total)}`,true,{qr:L()?['Agregar otra experiencia','Ir a transporte','Ver resumen']:['Add another experience','Go to transport','View summary']});
+};
+
+// ===================== 4. TRANSPORT FLOW =====================
+function showTransportFlow(){
+    const l=L();
+    addCard(`<div class="qf"><h4>${l?'Transporte Privado':'Private Transportation'}</h4><div class="fs">${l?'Paso 3 de 3 — Servicio de Transportes Guicho':'Step 3 of 3 — Transportes Guicho Service'}</div>
+        <div class="fg"><label>${l?'Origen / Destino':'Origin / Destination'}</label><select id="tr_dest">${TRANSPORT.suburban.map((t,i)=>`<option value="${i}">${t.to}</option>`).join('')}</select></div>
+        <div class="fr"><div class="fg"><label>${l?'Pasajeros':'Passengers'}</label><input type="number" id="tr_pax" min="1" max="12" value="${S.cart.stay?.guests||2}"></div><div class="fg"><label>${l?'Tipo':'Type'}</label><select id="tr_type"><option value="one">${l?'Solo ida':'One way'}</option><option value="rt">${l?'Ida y vuelta':'Round trip'}</option></select></div></div>
+        <button class="qc" onclick="addTransport()">${l?'Agregar Transporte':'Add Transportation'}</button>
+        <button class="qc secondary" onclick="handleQR('${l?'Ver resumen':'View summary'}')" style="margin-top:6px">${l?'Saltar':'Skip'}</button></div>`);
+}
+
+window.addTransport=function(){
+    const idx=+$('tr_dest').value,pax=+$('tr_pax').value,type=$('tr_type').value;
+    const vehicle=pax>3?'suburban':'sedan';
+    const route=TRANSPORT[vehicle][idx];
+    if(!route)return;
+    let price=route.p;
+    const isRT=route.to.includes('RT')||route.to.includes('round trip');
+    if(type==='rt'&&!isRT)price*=2;
+    S.cart.transport={dest:route.to,pax,vehicle,type,price};
+    addMsg(`${L()?'Transporte agregado':'Transport added'}: <strong>${route.to}</strong> (${vehicle==='suburban'?'Suburban':'Sedan'}) — ${fmt(price)}`,true,{qr:L()?['Ver resumen','Agregar experiencias']:['View summary','Add experiences']});
+};
+
+// ===================== 5. FULL SUMMARY + SEND =====================
+function showFullSummary(){
+    const l=L();const c=S.cart;
+    if(!c.stay){addMsg(l?'Primero necesitamos cotizar tu estadía.':'Let\'s first quote your stay.',true,{qr:l?['Cotizar estadía']:['Get a quote']});return;}
+    let lines='',grand=0;
+    // Stay
+    const st=c.stay;
+    const stTotal=st.roomTotal+st.mealTotal;grand+=stTotal;
+    lines+=`<div class="ql"><span>${st.propName} × ${st.nights} ${l?'noches':'nights'}</span><span>${fmt(st.roomTotal)}</span></div>`;
+    if(st.meals)lines+=`<div class="ql"><span>${l?'Alimentación':'Meals'} (${st.guests}×${st.nights})</span><span>${fmt(st.mealTotal)}</span></div>`;
+    // Experiences
+    c.experiences.forEach(e=>{grand+=e.total;lines+=`<div class="ql"><span>${e.name}${e.hours?' ('+e.hours+'h)':' ('+e.guests+'pax)'}</span><span>${fmt(e.total)}</span></div>`;});
+    // Transport
+    if(c.transport){grand+=c.transport.price;lines+=`<div class="ql"><span>${l?'Transporte':'Transport'}: ${c.transport.dest}</span><span>${fmt(c.transport.price)}</span></div>`;}
+    const tax=grand*0.16;const total=grand+tax;
+    const season=st.high?(l?'Temporada Alta':'High Season'):(l?'Temporada Baja':'Low Season');
+    const co=new Date(st.checkin);co.setDate(co.getDate()+st.nights);
+    const fd=d=>new Date(d).toLocaleDateString(l?'es-MX':'en-US',{month:'short',day:'numeric',year:'numeric'});
+
+    addCard(`<div class="qr2"><div class="qr2h"><h4>${l?'Resumen Completo':'Complete Summary'}</h4><span class="st">${season}</span></div><div class="qr2b">
+        <div style="font-size:12px;color:var(--stone);margin-bottom:12px">${fd(st.checkin)} → ${fd(co)} · ${st.guests} ${l?'huéspedes':'guests'}</div>
+        ${lines}
+        <div class="ql"><span>Subtotal</span><span>${fmt(grand)}</span></div>
+        <div class="ql"><span>IVA (16%)</span><span>${fmt(tax)}</span></div>
+        <div class="ql"><span>TOTAL</span><span>${fmt(total)}</span></div>
+        <div class="qn">${l?'Cotización estimada. Sujeta a disponibilidad. 50% de depósito para confirmar.':'Estimated quote. Subject to availability. 50% deposit to confirm.'}</div>
+    </div></div>`);
+
+    // Email capture form
+    addCard(`<div class="qf"><h4>${l?'Enviar Cotización':'Send Quote'}</h4><div class="fs">${l?'Te enviamos esta cotización y nuestro equipo te contacta':'We\'ll send this quote and our team will reach out'}</div>
+        <div class="fr"><div class="fg"><label>${l?'Nombre':'Name'}</label><input type="text" id="fName" placeholder="${l?'Tu nombre':'Your name'}"></div><div class="fg"><label>Email</label><input type="email" id="fEmail" placeholder="${l?'Tu email':'Your email'}"></div></div>
+        <button class="qc" onclick="sendQuote()">${l?'Enviar Cotización':'Send Quote'}</button></div>`);
+}
+
+window.sendQuote=function(){
+    const l=L();const name=$('fName')?.value||'',email=$('fEmail')?.value||'';
+    if(!name||!email){alert(l?'Nombre y email requeridos':'Name and email required');return;}
+    S.cart.name=name;S.cart.email=email;
+    const c=S.cart,st=c.stay;
+    let grand=st.roomTotal+st.mealTotal;c.experiences.forEach(e=>grand+=e.total);if(c.transport)grand+=c.transport.price;
+    const tax=grand*0.16,total=grand+tax;
+    const co=new Date(st.checkin);co.setDate(co.getDate()+st.nights);
+    const fd=d=>new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+    let txt=`CASA TAURO - QUOTE\nGuest: ${name}\nEmail: ${email}\n\n`;
+    txt+=`STAY: ${st.propName}\n${fd(st.checkin)} → ${fd(co)} (${st.nights} nights)\n${st.guests} guests · ${st.high?'High':'Low'} Season\nAccommodation: ${fmt(st.roomTotal)}\n`;
+    if(st.meals)txt+=`Meals: ${fmt(st.mealTotal)}\n`;
+    if(c.experiences.length){txt+=`\nEXPERIENCES:\n`;c.experiences.forEach(e=>{txt+=`- ${e.name}: ${fmt(e.total)}\n`;});}
+    if(c.transport)txt+=`\nTRANSPORT: ${c.transport.dest} (${c.transport.vehicle}) - ${fmt(c.transport.price)}\n`;
+    txt+=`\nSubtotal: ${fmt(grand)}\nIVA (16%): ${fmt(tax)}\nTOTAL: ${fmt(total)}`;
+    txt+=`\n\nPolicies: 50% deposit to confirm. Full payment 7 days before arrival.\nCancellation: Low season 30 days (100%), 29-10 days (50%), <10 non-refundable.\nHigh season: 60 days (100%), 59-30 days (50%), <30 non-refundable.\n\nQuote generated by casatauro.com AI Concierge · Developed by wdstudio.agency`;
+
+    // Send to Google Apps Script (Sheets + Email)
+    const payload = {
+        type: 'stay', name, email, lang: S.lang,
+        checkin: fd(st.checkin), checkout: fd(co),
+        nights: st.nights, guests: st.guests,
+        property: st.propName, season: st.high?'High Season':'Low Season',
+        experiences: c.experiences.map(e=>e.name+' '+fmt(e.total)).join(', ') || '',
+        transport: c.transport ? c.transport.dest+' '+fmt(c.transport.price) : '',
+        subtotal: fmt(grand), iva: fmt(tax), total: fmt(total)
+    };
+    
+    if(C.APPS_SCRIPT && !C.APPS_SCRIPT.includes('PASTE_YOUR')){
+        fetch(C.APPS_SCRIPT, { method:'POST', mode:'no-cors', body:JSON.stringify(payload) }).catch(()=>{});
+        addMsg(l?'Cotización enviada automáticamente a nuestro equipo y a tu email. Compártela también por WhatsApp para una respuesta más rápida.':'Quote automatically sent to our team and to your email. Share via WhatsApp for a faster response.',true);
+    } else {
+        addMsg(l?'Cotización procesada. Compártela por WhatsApp para confirmar con nuestro equipo.':'Quote processed. Share via WhatsApp to confirm with our team.',true);
+    }
+
+    const waMsg=encodeURIComponent(txt);
+    const waLink=`https://api.whatsapp.com/send?phone=${C.WA.replace('+','')}&text=${waMsg}`;
+    addCard(`<div style="margin-top:8px"><a href="${waLink}" target="_blank" class="qab qaw" style="display:flex;width:100%;border-radius:var(--r-sm);padding:14px;text-decoration:none;justify-content:center;font-size:14px">${l?'Enviar por WhatsApp':'Send via WhatsApp'}</a></div>`);
+    setTimeout(()=>{addMsg(l?'Nuestro equipo revisará disponibilidad y te contactará pronto. ¡Gracias por elegir Casa Tauro!':'Our team will check availability and contact you soon. Thank you for choosing Casa Tauro!',true,{qr:l?['Nueva cotización','Bodas','Contacto']:['New quote','Weddings','Contact']});},800);
+};
+
+// ===================== WEDDINGS — Full Guided Flow (from official brochure) =====================
+function showWeddings(){const l=L();
+    addMsg(l?'Las bodas en Casa Tauro son un sueño hecho realidad. Un paraíso de arena blanca y aguas turquesas te espera. Déjame mostrarte todo lo que necesitas saber.':'Weddings at Casa Tauro are a dream come true. A paradise of white sand and turquoise waters awaits. Let me show you everything you need to know.',true);
+    setTimeout(()=>{
+        addCard(`<div class="wc"><div class="wch"><h4>${l?'Bodas en Casa Tauro':'Weddings at Casa Tauro'}</h4></div><div class="wcb">
+            <div class="wf"><div class="wi"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div><strong>${l?'Propiedad completa requerida':'Full property required'}</strong><br><span style="font-size:12px;color:var(--stone)">6 suites · 12 ${l?'huéspedes':'guests'} · $82,500 MXN/${l?'noche':'night'}</span></div></div>
+            <div class="wf"><div class="wi"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><strong>${l?'Desde 12 hasta 400 invitados':'From 12 to 400 guests'}</strong><br><span style="font-size:12px;color:var(--stone)">${l?'Tan íntima o grande como desees':'As intimate or grand as you wish'}</span></div></div>
+            <div class="wf"><div class="wi"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg></div><div><strong>${l?'2 Ubicaciones de Playa':'2 Beach Locations'}</strong><br><span style="font-size:12px;color:var(--stone)">Playa Tauro: 75m, ${l?'hasta':'up to'} 400 | Play-ita: 30m, ${l?'hasta':'up to'} 150</span></div></div>
+            <div class="wf"><div class="wi"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><strong>${l?'Renta de playa':'Beach rental'}</strong><br><span style="font-size:12px;color:var(--stone)">≤100: $360,000 MXN | 101–350: $480,000 MXN</span></div></div>
+        </div></div>`);
+    },300);
+    setTimeout(()=>{
+        addMsg(l?'Casa Tauro provee exclusivamente el venue — tú diseñas tu boda como la imaginas. Tú contratas catering, decoración, entretenimiento, y todo lo necesario para tu celebración.\n\nLas áreas comunes de la casa son solo para los 12 huéspedes. Los eventos con más invitados se realizan completamente en la playa.\n\nSe requiere un depósito de seguridad de $82,500 MXN (100% reembolsable).':'Casa Tauro exclusively provides the venue — you design your wedding as you envision it. You hire catering, decoration, entertainment, and everything needed for your celebration.\n\nCommon areas in the house are only for the 12 lodging guests. Events with more guests take place entirely on the beach.\n\nA $82,500 MXN security deposit is required (100% refundable).',true);
+    },800);
+    setTimeout(()=>{
+        addMsg(l?'¿Te gustaría recibir una cotización base para tu boda?':'Would you like to receive a base quote for your wedding?',true,{qr:l?['Cotizar boda','Contacto']:['Wedding quote','Contact']});
+    },1400);
+}
+
+function showWeddingForm(){const l=L();
+    addMsg(l?'Perfecto. Vamos a preparar tu cotización de boda paso a paso.':'Perfect. Let\'s prepare your wedding quote step by step.',true);
+    setTimeout(()=>{
+        addCard(`<div class="qf"><h4>${l?'Cotización de Boda':'Wedding Quote'}</h4><div class="fs">${l?'Completa los detalles de tu celebración':'Fill in your celebration details'}</div>
+            <div class="fr"><div class="fg"><label>${l?'Fecha tentativa':'Tentative date'}</label><input type="date" id="wD"></div><div class="fg"><label>${l?'Invitados al evento':'Event guests'}</label><input type="number" id="wG" min="12" max="400" value="80"></div></div>
+            <div class="fr"><div class="fg"><label>${l?'Noches (mín 3)':'Nights (min 3)'}</label><input type="number" id="wN" min="3" value="3"></div><div class="fg"><label>${l?'Playa preferida':'Preferred beach'}</label><select id="wB"><option value="tauro">Playa Tauro — 75m / 400 pax</option><option value="playita">Play-ita — 30m / 150 pax</option><option value="both">${l?'Ambas':'Both'}</option></select></div></div>
+            <div class="fr"><div class="fg"><label>${l?'Nombre completo':'Full name'}</label><input type="text" id="wNm"></div><div class="fg"><label>Email</label><input type="email" id="wEm"></div></div>
+            <div class="fg"><label>${l?'Teléfono / WhatsApp':'Phone / WhatsApp'}</label><input type="tel" id="wPh" placeholder="+52..."></div>
+            <div class="fg"><label>${l?'Cuéntanos tu visión':'Tell us your vision'}</label><textarea id="wNo" placeholder="${l?'Tipo de ceremonia, estilo, número de eventos (ceremonia, fiesta, pre/post boda), entretenimiento, restricciones alimenticias...':'Type of ceremony, style, number of events (ceremony, party, pre/post wedding), entertainment, dietary restrictions...'}"></textarea></div>
+            <button class="qc" onclick="sendWedding()">${l?'Generar Cotización':'Generate Quote'}</button></div>`);
+    },400);
+}
+
+window.sendWedding=function(){const l=L();
+    const d=$('wD').value,g=+$('wG').value,n=Math.max(+$('wN').value||3,3),b=$('wB').value,nm=$('wNm').value,em=$('wEm').value,ph=$('wPh')?.value||'',no=$('wNo').value;
+    if(!d||!g||!nm||!em){alert(l?'Por favor completa nombre, email, fecha e invitados':'Please fill name, email, date and guests');return;}
+    // Validate beach capacity
+    if(b==='playita'&&g>150){alert(l?'Play-ita tiene capacidad máxima de 150 personas. Selecciona Playa Tauro para más invitados.':'Play-ita has a maximum capacity of 150 people. Select Playa Tauro for more guests.');return;}
+    const bp=g<=100?360000:480000;
+    const pp=82500*n;
+    const deposit=82500;
+    const tot=bp+pp+deposit;
+    const bn=b==='tauro'?'Playa Tauro (75m / 400 cap.)':b==='playita'?'Play-ita (30m / 150 cap.)':(l?'Ambas playas':'Both beaches');
+    const fd=x=>new Date(x).toLocaleDateString(l?'es-MX':'en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+    // Show detailed estimate card
+    addCard(`<div class="qr2"><div class="qr2h"><h4>${l?'Cotización de Boda':'Wedding Quote'}</h4><span class="st">${g} ${l?'invitados':'guests'}</span></div><div class="qr2b">
+        <div style="font-size:12px;color:var(--stone);margin-bottom:12px">${fd(d)} · ${bn}</div>
+        <div class="ql"><span>${l?'Renta de playa':'Beach rental'} (${g<=100?'≤100':'101–350'} ${l?'personas':'guests'})</span><span>${fmt(bp)}</span></div>
+        <div class="ql"><span>${l?'Propiedad completa':'Full property'} (12 ${l?'huésp.':'guests'}) × ${n} ${l?'noches':'nights'}</span><span>${fmt(pp)}</span></div>
+        <div class="ql"><span>${l?'Depósito de seguridad':'Security deposit'} (${l?'reembolsable':'refundable'})</span><span>${fmt(deposit)}</span></div>
+        <div class="ql"><span>${l?'TOTAL VENUE':'TOTAL VENUE'}</span><span>${fmt(tot)}</span></div>
+        <div class="qn" style="line-height:1.6">
+            <strong>${l?'Importante':'Important'}:</strong><br>
+            · ${l?'Casa Tauro provee exclusivamente el venue':'Casa Tauro exclusively provides the venue'}<br>
+            · ${l?'Tú contratas: catering, decoración, entretenimiento, seguridad, valet, baños portátiles, generador eléctrico, recolección de basura':'You hire: catering, decoration, entertainment, security, valet, portable toilets, electricity generator, garbage disposal'}<br>
+            · ${l?'Áreas comunes solo para los 12 huéspedes de la casa':'Common areas only for the 12 house guests'}<br>
+            · ${l?'Depósito de seguridad 100% reembolsable si no hay daños':'Security deposit 100% refundable if no damages'}<br>
+            · ${l?'Todos los precios + IVA':'All prices + VAT'}<br>
+            · ${l?'Pago: 50% depósito para confirmar, pago total 15 días antes':'Payment: 50% deposit to confirm, full payment 15 days before'}<br>
+            · ${l?'Cancelación: 45 días antes 100%, 44-30 días 50%, <30 días no reembolsable':'Cancellation: 45 days before 100%, 44-30 days 50%, <30 days non-refundable'}
+        </div>
+    </div></div>`);
+
+    setTimeout(()=>{
+        addMsg(l?'Para invitados adicionales que necesiten hospedaje, recomendamos estos hoteles cercanos:\n\n<strong>Hotel Club Careyes y Residences</strong>\nTayde Ramirez · +52 (315) 351 0322\n\n<strong>Casita de las Flores & Careyes Private Villas</strong>\nMarco Lorelli · +52 1 (322) 140 1809':'For additional guests needing accommodation, we recommend these nearby hotels:\n\n<strong>Hotel Club Careyes y Residences</strong>\nTayde Ramirez · +52 (315) 351 0322\n\n<strong>Casita de las Flores & Careyes Private Villas</strong>\nMarco Lorelli · +52 1 (322) 140 1809',true);
+    },500);
+
+    // Build inquiry text
+    let txt=`WEDDING INQUIRY - CASA TAURO\n${'='.repeat(40)}\n\n`;
+    txt+=`CONTACT:\nName: ${nm}\nEmail: ${em}\n${ph?'Phone: '+ph+'\n':''}`;
+    txt+=`\nEVENT:\nDate: ${fd(d)}\nGuests: ${g}\nNights: ${n}\nBeach: ${bn}\n`;
+    txt+=`\nVision/Notes: ${no||'None provided'}\n`;
+    txt+=`\nVENUE QUOTE:\nBeach rental: ${fmt(bp)}\nProperty (${n} nights × $82,500): ${fmt(pp)}\nSecurity deposit (refundable): ${fmt(deposit)}\nTOTAL VENUE: ${fmt(tot)}\n`;
+    txt+=`\nNote: Venue only. Client arranges catering, decoration, entertainment, security, toilets, generator, garbage, ambulance.\n`;
+    txt+=`Cancellation: 45d=100%, 44-30d=50%, <30d=non-refundable.\nPayment: 50% deposit + full 15 days before.\n`;
+    txt+=`\n---\nCasa Tauro AI Concierge · casatauro.com\nDeveloped by wdstudio.agency`;
+
+    // Send to backend
+    if(C.APPS_SCRIPT && !C.APPS_SCRIPT.includes('PASTE_YOUR')){
+        fetch(C.APPS_SCRIPT, { method:'POST', mode:'no-cors', body:JSON.stringify({
+            type:'wedding', name:nm, email:em, phone:ph, lang:S.lang,
+            checkin:fd(d), nights:n, guests:g, property:'Full Property (Wedding)',
+            notes: bn+' | '+(no||''), subtotal:fmt(bp+pp), iva:'', total:fmt(tot), season:'Wedding'
+        })}).catch(()=>{});
+    }
+
+    // WhatsApp
+    const waLink=`https://api.whatsapp.com/send?phone=${C.WA.replace('+','')}&text=${encodeURIComponent(txt)}`;
+
+    setTimeout(()=>{
+        addMsg(l?'Tu cotización de boda está lista. Compártela con nuestro equipo para iniciar el proceso.':'Your wedding quote is ready. Share it with our team to start the process.',true);
+        addCard(`<div style="margin-top:8px"><a href="${waLink}" target="_blank" class="qab qaw" style="display:flex;width:100%;border-radius:var(--r-sm);padding:14px;text-decoration:none;justify-content:center;font-size:14px">${l?'Enviar por WhatsApp':'Send via WhatsApp'}</a></div>`);
+    },1000);
+
+    setTimeout(()=>{
+        addMsg(l?'Nuestro equipo de bodas te contactará en 24-48 horas con los siguientes pasos y recomendaciones de proveedores en la zona. ¡Tu boda soñada en Careyes está a un paso!':'Our wedding team will contact you within 24-48 hours with next steps and vendor recommendations in the area. Your dream Careyes wedding is one step away!',true,{qr:l?['Ver suites','Contacto','Nueva cotización']:['View suites','Contact','New quote']});
+    },1600);
+};
+
+// ===================== CONTACT =====================
+function showContact(){const l=L();
+    const waLink=`https://api.whatsapp.com/send?phone=${C.WA.replace('+','')}&text=${encodeURIComponent(l?'Hola, me interesa Casa Tauro':'Hi, I\'m interested in Casa Tauro')}`;
+    addCard(`<div class="qf" style="text-align:center"><h4>${l?'Conecta con Nosotros':'Connect With Us'}</h4>
+        <div style="margin:16px 0"><a href="${waLink}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--green);color:white;padding:14px 28px;border-radius:24px;font-weight:600;font-size:14px;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif">${l?'Enviar WhatsApp':'Send WhatsApp'}</a></div>
+        <div style="font-size:13px;color:var(--stone);line-height:1.8">${C.WA}<br>${C.EMAIL}<br><a href="${C.WEB}" target="_blank" style="color:var(--ocean)">casatauro.com</a></div></div>`);
+}
+
+// ===================== AUTO-OPEN =====================
+window.addEventListener('load',()=>{setTimeout(()=>tog(true),2000);});
+console.log('Casa Tauro Booking Assistant v6.0 · wdstudio.agency');
+</script>
+</body>
+</html>
