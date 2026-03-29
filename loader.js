@@ -2,7 +2,7 @@
 // This script fetches the bot HTML and injects it into the page
 (function(){
   var baseUrl = document.currentScript.src.replace('/loader.js','');
-  fetch(baseUrl + '/bot.html')
+  fetch(baseUrl + '/index.html')
     .then(function(r){ return r.text(); })
     .then(function(html){
       var div = document.createElement('div');
