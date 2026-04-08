@@ -298,7 +298,7 @@ function showStayForm(){
 }
 
 window.saveStay=function(){
-    const ci=$('sCI').value,n=+$('sN').value,g=+$('sG').value,p=$('sP').value,m=+$('sM').value;
+    const ci=$('qCi').value,n=+$('sN').value,g=+$('sG').value,p=$('sP').value,m=+$('sM').value;
     if(!ci||!n||!g){alert(L()?'Completa todos los campos':'Fill all fields');return;}
     const d=new Date(ci),mo=d.getMonth()+1,da=d.getDate();
     const hi=(mo===12&&da>=15)||(mo===1&&da<=10)||(mo===3&&da>=20)||(mo===4&&da<=20);
