@@ -33,7 +33,7 @@
         .chat-head::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
         .ht{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px}
         .hb{display:flex;align-items:center;gap:14px}
-        .hl{height:28px;width:16%;filter:brightness(0) invert(1);opacity:.95}
+        .hl{height:28px;width:auto;filter:brightness(0) invert(1);opacity:.95}
         .hd{width:1px;height:24px;background:rgba(255,255,255,0.15)}
         .hti{display:flex;flex-direction:column;gap:2px}
         .hti h3{font-size:14px;font-weight:500;color:var(--cream);letter-spacing:.02em}
@@ -182,8 +182,7 @@ IMPORTANT: Never mention "Careyes" or "Costa Careyes" in responses. Refer to loc
 // ===================== STATE =====================
 let S={lang:'en',hist:[],open:false,init:false,cart:{stay:null,experiences:[],transport:null,email:'',name:''}};
 const $=id=>document.getElementById(id);
-const fmt=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0}).format(n);
-const L=()=>S.lang==='es';
+const fmt=n=>'$'+new Intl.NumberFormat('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}).format(n)+' MXN';const L=()=>S.lang==='es';
 const TX={es:{st:'Disponible 24/7',ph:'Pregúntame sobre Casa Tauro...',hi:'¡Bienvenido a <strong>Casa Tauro</strong>!\n\nSoy tu asistente de reservaciones. Te guío paso a paso para diseñar tu experiencia perfecta en la costa del Pacífico mexicano.\n\n¿Por dónde empezamos?',opts:['Ver Suites','Bodas','Contacto']},en:{st:'Available 24/7',ph:'Ask me about Casa Tauro...',hi:'Welcome to <strong>Casa Tauro</strong>!\n\nI\'m your booking assistant. I\'ll guide you step by step to design your perfect experience on the Mexican Pacific coast.\n\nWhere shall we start?',opts:['View Suites','Weddings','Contact']}};
 const tx=k=>TX[S.lang][k];
 
