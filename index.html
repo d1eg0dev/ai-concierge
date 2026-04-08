@@ -394,12 +394,12 @@ function showFullSummary(){
 
     // Email capture form
     addCard(`<div class="qf"><h4>${l?'Enviar Cotización':'Send Quote'}</h4><div class="fs">${l?'Te enviamos esta cotización y nuestro equipo te contacta':'We\'ll send this quote and our team will reach out'}</div>
-        <div class="fr"><div class="fg"><label>${l?'Nombre':'Name'}</label><input type="text" id="fName" placeholder="${l?'Tu nombre':'Your name'}"></div><div class="fg"><label>Email</label><input type="email" id="fEmail" placeholder="${l?'Tu email':'Your email'}"></div></div>
+        <div class="fr"><div class="fg"><label>${l?'Nombre':'Name'}</label><input type="text" id="qNm"></div><div class="fg"><label>Email</label><input type="email" id="qEm"></div></div><div class="fg"><label>${l?'Teléfono / WhatsApp':'Phone / WhatsApp'}</label><input type="tel" id="qPh" placeholder="+52..."></div>
         <button class="qc" onclick="sendQuote()">${l?'Enviar Cotización':'Send Quote'}</button></div>`);
 }
 
 window.sendQuote=function(){
-    const l=L();const name=$('fName')?.value||'',email=$('fEmail')?.value||'';
+    const l=L();const name=$('qNm').value,email=$('qEm').value,phone=$('qPh')?.value||'';
     if(!name||!email){alert(l?'Nombre y email requeridos':'Name and email required');return;}
     S.cart.name=name;S.cart.email=email;
     const c=S.cart,st=c.stay;
@@ -418,7 +418,7 @@ window.sendQuote=function(){
 
     // Send to Google Apps Script (Sheets + Email)
     const payload = {
-        type: 'stay', name, email, lang: S.lang,
+        type: 'stay', name, email, phone, lang: S.lang,
         checkin: fd(st.checkin), checkout: fd(co),
         nights: st.nights, guests: st.guests,
         property: st.propName, season: st.high?'High Season':'Low Season',
