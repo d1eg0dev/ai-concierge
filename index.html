@@ -140,6 +140,8 @@
         .cart-badge{position:absolute;top:-4px;right:-4px;background:var(--gold);color:var(--warm-black);font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
         @media(max-width:768px){.chat-panel{width:calc(100vw - 16px);height:calc(100dvh - 100px);max-height:600px;right:8px;bottom:76px;border-radius:var(--r-lg)}.chat-fab{right:16px;bottom:16px;width:56px;height:56px}.sci{height:140px}}
         @media(max-width:430px){.chat-panel{width:calc(100vw - 12px);height:calc(100dvh - 90px);max-height:580px;right:6px;bottom:72px;border-radius:var(--r-md)}.chat-fab{right:12px;bottom:12px;width:52px;height:52px}.mx{font-size:12.5px;padding:10px 13px}.qb{font-size:11px;padding:7px 12px}.sci{height:130px}}
+        .chat-panel input[type="date"]{font-size:13px;min-width:0;width:100%}
+        .chat-panel .fr{display:flex;gap:8px}.chat-panel .fr .fg{flex:1;min-width:0}
     </style>
 </head>
 <body>
@@ -288,7 +290,7 @@ function showSuites(){
 function showStayForm(){
     const l=L();
     addCard(`<div class="qf"><h4>${l?'Cotiza tu Estadía':'Quote Your Stay'}</h4><div class="fs">${l?'Paso 1 de 3 — Alojamiento':'Step 1 of 3 — Accommodation'}</div>
-        <div class="fr"><div class="fg"><label>${l?'Llegada':'Check-in'}</label><input type="date" id="sCI"></div><div class="fg"><label>${l?'Noches':'Nights'}</label><input type="number" id="sN" min="1" value="3"></div></div>
+        <div class="fr"><div class="fg"><label>${l?'Llegada':'Check-in'}</label><input type="date" id="qCi" style="font-size:13px"></div><div class="fg"><label>${l?'Noches':'Nights'}</label><input type="number" id="sN" min="1" value="3"></div></div>
         <div class="fr"><div class="fg"><label>${l?'Huéspedes':'Guests'}</label><input type="number" id="sG" min="1" max="12" value="2"></div><div class="fg"><label>${l?'Propiedad':'Property'}</label><select id="sP"><option value="full">${l?'Completa (12)':'Full (12)'}</option><option value="casa">Casa Tauro (8)</option><option value="casita">Casita Palmar (6)</option></select></div></div>
         <div class="fg"><label>${l?'Plan de Alimentos':'Meal Plan'}</label><select id="sM"><option value="0">${l?'Sin plan':'No meal plan'}</option><option value="1">${l?'Sí — $2,500 MXN/adulto/día':'Yes — $2,500 MXN/adult/day'}</option></select></div>
         <div style="font-size:11px;color:var(--stone-light);margin-bottom:12px;line-height:1.5;padding:10px;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold)">${l?'Para habitaciones individuales (Suite Puma $9,900/noche, Suite Tortuga $6,600/noche), contáctanos por WhatsApp para consultar disponibilidad.':'For individual rooms (Suite Puma $9,900/night, Suite Tortuga $6,600/night), contact us via WhatsApp to check availability.'}</div>
